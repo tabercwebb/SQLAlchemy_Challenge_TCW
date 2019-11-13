@@ -43,16 +43,24 @@ app = Flask(__name__)
 # Welcome Route
 @app.route("/")
 def welcome():
-    return (
+    return """<html>
+        
+        <h1>Hawaii Climate API</h1>
 
-        f"Hawaii Climate API<br/><br/>"
-        f"Precipitation Analysis: /api/v1.0/precipitation<br/><br/>"
-        f"Station Analysis: /api/v1.0/stations<br/><br/>"
-        f"Temperature Analysis: /api/v1.0/tobs<br/><br/>"
-        f"Start Day Analysis: /api/v1.0/<start><br/><br/>"
-        f"Start & End Day Analysis: /api/v1.0/<start><end>"
-    )
+        <ul>
+        <li><strong>Precipitation Analysis:</strong> <a href="/api/v1.0/precipitation" target="_blank">/api/v1.0/precipitation</a></li>
+        <br>
+        <li><strong>Station Analysis:</strong> <a href="/api/v1.0/stations" target="_blank">/api/v1.0/stations</a></li>
+        <br>
+        <li><strong>Temperature Analysis:</strong> <a href="/api/v1.0/tobs" target="_blank">/api/v1.0/tobs</a></li>
+        <br>
+        <li><strong>Start Day Analysis:</strong> <a href="/api/v1.0/2016-08-23" target="_blank">/api/v1.0/2016-08-23</a></li>
+        <br>
+        <li><strong>Start & End Day Analysis:</strong> <a href="/api/v1.0/2015-05-13/2015-05-22" target="_blank">/api/v1.0/2015-05-13/2015-05-22</a></li>
+        </ul>
 
+        </html>
+        """
 
 # Precipitation Route
 @app.route("/api/v1.0/precipitation")
@@ -97,18 +105,20 @@ def tobs():
 def start_day(start):
 
         session = Session(engine)
-        start_day = session.query(Measurement.date, func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).filter(Measurement.date >= start).group_by(Measurement.date).all()
+        start_day = session.query(Measurement.date, func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
+                filter(Measurement.date >= start).group_by(Measurement.date).all()
         session.close()
 
         start_day_list = list(start_day)
         return jsonify(start_day_list)
 
 # Start-End Day Route
-@app.route("/api/v1.0/<start><end>")
+@app.route("/api/v1.0/<start>/<end>")
 def start_end_day(start, end):
 
         session = Session(engine)
-        start_end_day = session.query(Measurement.date, func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).filter(Measurement.date >= start).filter(Measurement.date <= end).group_by(Measurement.date).all()
+        start_end_day = session.query(Measurement.date, func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
+                filter(Measurement.date >= start).filter(Measurement.date <= end).group_by(Measurement.date).all()
         session.close()
 
         start_end_day_list = list(start_end_day)
